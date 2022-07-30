@@ -7,4 +7,6 @@ $ alias yum='~/.func/bum/bum.sh'
 $ yum list installed
 ==> Formulae
 ...
+==> Casks
+...
 ```
