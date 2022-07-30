@@ -1,3 +1,5 @@
+#!/bin/bash
+
 bum () {
   case $1 in
 
