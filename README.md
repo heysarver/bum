@@ -5,4 +5,6 @@ A yum syntax wrapper for brew
 ```
 $ alias yum='~/.func/bum/bum.sh'
 $ yum list installed
+==> Formulae
+...
 ```
