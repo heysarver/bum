@@ -1,58 +1,48 @@
 #!/bin/bash
 
-bum () {
-  case $1 in
+brew_yum() {
+  local prefix=$1
+  local command=$2
+  shift 2
 
-  help)
-    echo "Help Messages"
-    ;;
-  
-  update)
-    case $2 in
-
-    $3)
-      brew upgrade $3
+  case $command in
+    install|remove|update|search)
+      brew $prefix $command "$@"
       ;;
-    
+    list)
+      brew $command "$@"
+      ;;
     *)
-      brew upgrade
+      echo "Invalid command: $command"
       ;;
-    esac
-    ;;
-
-  list)
-    case $2 in
-
-    installed)
-      brew list
-      ;;
-    
-    *)
-      echo "unknown"
-      ;;
-    esac
-    ;;
-  
-  install)
-    # This should be better
-    brew install --cask $2
-    brew install $2
-    ;;
-  
-  reinstall)
-    # This should be better
-    brew reinstall --cask $2
-    brew reinstall $2
-    ;;
-  
-  search)
-    brew search $2
-    ;;
-
-  *)
-    echo -n "unknown"
-    ;;
-esac
+  esac
 }
 
-bum $@
+bum() {
+  if [ $# -lt 2 ]; then
+    echo "Usage: bum <option> <command>"
+    return 1
+  fi
+  
+  local option=$1
+  local command=$2
+  shift 2
+
+  case $option in
+    --cask-only|--no-formula|--no-forumlae)
+      brew_yum "cask" "$command" "$@"
+      ;;
+    --formula-only|--formulae-only|--no-cask)
+      brew_yum "" "$command" "$@"
+      ;;
+    list)
+      brew_yum "" "$command" "$@"
+      ;;
+    *)
+      brew_yum "" "$option" "$command" "$@"
+      brew_yum "cask" "$option" "$command" "$@"
+      ;;
+  esac
+}
+
+bum "$@"
