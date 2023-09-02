@@ -6,8 +6,11 @@ brew_yum() {
   shift 2
 
   case $command in
-    install|remove|update|search)
+    install|remove|search)
       brew $prefix $command "$@"
+      ;;
+    update)
+      brew $prefix upgrade "$@"
       ;;
     list)
       brew $command "$@"
@@ -19,7 +22,7 @@ brew_yum() {
 }
 
 bum() {
-  if [ $# -lt 2 ]; then
+  if [ $# -lt 1 ]; then
     echo "Usage: bum <option> <command>"
     return 1
   fi
@@ -38,6 +41,10 @@ bum() {
     list)
       brew_yum "" "$command" "$@"
       ;;
+    update)
+      brew_yum "" "upgrade" "$@"
+      brew_yum "cask" "upgrade" "$@"
+      ;;
     *)
       brew_yum "" "$option" "$command" "$@"
       brew_yum "cask" "$option" "$command" "$@"
@@ -45,4 +52,5 @@ bum() {
   esac
 }
 
+# Call bum with all script arguments
 bum "$@"
