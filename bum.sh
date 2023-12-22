@@ -1,16 +1,16 @@
 #!/bin/bash
 
 brew_yum() {
-  local prefix=$1
-  local command=$2
+  local command=$1
+  local prefix=$2
   shift 2
 
   case $command in
     install|remove|search)
-      brew $prefix $command "$@"
+      brew $command $prefix "$@"
       ;;
     update)
-      brew $prefix upgrade "$@"
+      brew upgrade $prefix "$@"
       ;;
     list)
       brew $command "$@"
@@ -23,34 +23,41 @@ brew_yum() {
 
 bum() {
   if [ $# -lt 1 ]; then
-    echo "Usage: bum <option> <command>"
+    echo "Usage: bum <command> [cask_option] <package>"
     return 1
   fi
   
-  local option=$1
-  local command=$2
-  shift 2
+  local command=""
+  local cask_option=""
 
-  case $option in
-    --cask-only|--no-formula|--no-forumlae)
-      brew_yum "cask" "$command" "$@"
-      ;;
-    --formula-only|--formulae-only|--no-cask)
-      brew_yum "" "$command" "$@"
-      ;;
-    list)
-      brew_yum "" "$command" "$@"
-      ;;
-    update)
-      brew_yum "" "upgrade" "$@"
-      brew_yum "cask" "upgrade" "$@"
-      ;;
-    *)
-      brew_yum "" "$option" "$command" "$@"
-      brew_yum "cask" "$option" "$command" "$@"
-      ;;
-  esac
+  command=$1
+  if [[ $2 == --cask ]]; then
+    cask_option=$2
+    shift 2
+  else
+    shift 1
+  fi
+
+  if [[ $command == "install" ]]; then
+    case $cask_option in
+      --cask-only|--no-formula|--no-formulae)
+        brew_yum "$command" "--cask" "$@"
+        ;;
+      --formula-only|--formulae-only|--no-cask)
+        brew_yum "$command" "" "$@"
+        ;;
+      *)
+        if [ -z "$cask_option" ]; then
+          brew_yum "$command" "" "$@"
+        else
+          brew_yum "$command" "" "$@"
+          brew_yum "$command" "--cask" "$@"
+        fi
+        ;;
+    esac
+  else
+    brew_yum "$command" "" "$@"
+  fi
 }
 
-# Call bum with all script arguments
 bum "$@"
